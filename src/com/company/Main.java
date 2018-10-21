@@ -107,7 +107,7 @@ public class Main {
         return s.split("(?!^)");
     }
 
-    public static String[] readToStrMas(String fileName) {
+    public static String readToStr(String fileName) {
         try {
             Path filePath = new File(fileName).toPath();
             Charset charset = Charset.defaultCharset();
@@ -118,8 +118,12 @@ public class Main {
                 return null;
             }
 
+            String stringArray = "";
 
-            String[] stringArray = stringList.toArray(new String[]{});
+            for (String elem : stringList
+            ) {
+                stringArray += elem;
+            }
 
             return stringArray;
 
@@ -129,45 +133,42 @@ public class Main {
         }
     }
 
-    public static String[][] convertStrMasToMatrix(String[] strArray) {
-        int rows = strArray.length;
-        int columns = strArray[0].length();
-        String[][] mas = new String[rows][columns];
+    public static String[] convertStrToMas(String str) {
 
-        for (int i = 0; i < rows; i++) {
-            mas[i] = singleChars(strArray[i]);
-        }
+        String[] mas = new String[str.length()];
+
+        mas = str.split("");
 
         return mas;
     }
 
 
-    public static Integer[][] convertStrMasToIntMasByMap(String[][] strMas, HashMap<String, Integer> dictionary) {
+    public static Integer[][] convertStrMasToIntMasByMap(String[] strMas, HashMap<String, Integer> dictionary) {
         int rows = strMas.length;
-        int columns = strMas[0].length;
-        Integer[][] mas = new Integer[rows][columns];
+        int columns = 1;
+        Integer[][] mas = new Integer[columns][rows];
 
-        for (int i = 0; i < rows; i++) {         // rows from m1
-            for (int j = 0; j < columns; j++) {
-                mas[i][j] = dictionary.get(strMas[i][j]);
-            }
+        for (int i = 0; i < columns; i++) {
+            for (int j = 0; j < rows; j++)
+                mas[i][j] = dictionary.get(strMas[j]);
         }
 
         return mas;
     }
 
-    public static String[][] convertIntMasToStrMasByMap(Integer[][] intMas, HashMap<Integer, String> dictionary) {
+    public static String[][] convertIntMasToStrMasByMap(Integer[][] intMas, HashMap<Integer, String> dictionary, int size) {
         int rows = intMas.length;
-        int columns = intMas[0].length;
-        String[][] mas = new String[rows][columns];
+        //int columns = intMas[0].length;
+        String[][] strMas = new String[size][size];
 
-        for (int i = 0; i < rows; i++) {         // rows from m1
-            for (int j = 0; j < columns; j++) {
-                mas[i][j] = dictionary.get(intMas[i][j]);
+        for (int i = 0; i < rows/size; i++) {
+            for (int j=i*size; j<(i+1)*size; j++){
+                strMas[i][j-(size*i)] = dictionary.get(intMas[j][0]);
             }
+            //str += dictionary.get(intMas[i]);
         }
 
-        return mas;
+        return strMas;
     }
 
 
@@ -261,18 +262,34 @@ public class Main {
                     curName = in.nextLine();
 
                     image = convertStrMasToIntMasByMap(
-                            convertStrMasToMatrix(
-                                    readToStrMas(curName + ".txt"))
+                            convertStrToMas(
+                                    readToStr(curName + ".txt"))
                             , convertDict);
 
                     if (W == null) {
                         int rows = image.length;
-                        int columns = image[0].length;
-                        W = new Integer[rows][columns];
+                        //int columns = image[0].length;
+                        //W = new Integer[][];
 
-                        W = multiplyByMatrix(image, transpose(image));
+                       /* Integer[][] a = new Integer[][]{
+                            {1},
+                            {-1},
+                            {1},
+                            {1}
+                        };
+
+                        Integer[][] x = transpose(a);
+
+                        Integer[][] b = new Integer[][]{
+                                {1,-1,1,1}
+                        };
+
+                        Integer [][] c = multiplyByMatrix(a,b);
+
+                        System.out.println();*/
+                        W = multiplyByMatrix(transpose(image), image);
                     } else {
-                        W = addMatrix(W, multiplyByMatrix(image, transpose(image)));
+                        W = addMatrix(W, multiplyByMatrix(transpose(image), image));
                     }
 
                     //matrPrint(image);
@@ -282,8 +299,8 @@ public class Main {
                     curName = in.nextLine();
 
                     image = convertStrMasToIntMasByMap(
-                            convertStrMasToMatrix(
-                                    readToStrMas(curName + ".txt"))
+                            convertStrToMas(
+                                    readToStr(curName + ".txt"))
                             , convertDict);
 
                     int rows = W.length;
@@ -298,10 +315,10 @@ public class Main {
                     }
 
                     Integer[][] ResImage;
-                    ResImage = multiplyByMatrix(W, image);
+                    ResImage = multiplyByMatrix(W, transpose(image));
                     ResImage = fActiv(ResImage);
 
-                    String[][] resImageStr = convertIntMasToStrMasByMap(ResImage, convertDict2);
+                    String[][] resImageStr = convertIntMasToStrMasByMap(ResImage, convertDict2,(int)Math.sqrt(rows));
 
                     matrPrint(resImageStr);
                     break;
