@@ -13,15 +13,15 @@ import java.util.Scanner;
 public class Main {
 
 
-    public static <T> T[][] multiplyByMatrix(T[][] m1, T[][] m2) {
+    public static double[][] multiplyByMatrix(double[][] m1, double[][] m2) {
         int m1ColLength = m1[0].length; // m1 columns length
         int m2RowLength = m2.length;    // m2 rows length
         if (m1ColLength != m2RowLength) return null; // matrix multiplication is not possible
         int mRRowLength = m1.length;    // m result rows length
         int mRColLength = m2[0].length; // m result columns length
 
+        double[][] mResult = new double[mRRowLength][mRColLength];
 
-        T[][] mResult = new T[mRRowLength][mRColLength];
         for (int i = 0; i < mRRowLength; i++) {         // rows from m1
             for (int j = 0; j < mRColLength; j++) {     // columns from m2
                 for (int k = 0; k < m1ColLength; k++) { // columns from m1
@@ -32,6 +32,32 @@ public class Main {
         return mResult;
     }
 
+
+    public static Integer[][] multiplyByMatrix(Integer[][] m1, Integer[][] m2) {
+        int m1ColLength = m1[0].length; // m1 columns length
+        int m2RowLength = m2.length;    // m2 rows length
+        if (m1ColLength != m2RowLength) return null; // matrix multiplication is not possible
+        int mRRowLength = m1.length;    // m result rows length
+        int mRColLength = m2[0].length; // m result columns length
+
+
+        Integer[][] mResult = new Integer[mRRowLength][mRColLength];
+
+        for (int i = 0; i < mRRowLength; i++) {         // rows from m1
+            for (int j = 0; j < mRColLength; j++) {
+                mResult[i][j] = 0;
+            }
+        }
+
+        for (int i = 0; i < mRRowLength; i++) {         // rows from m1
+            for (int j = 0; j < mRColLength; j++) {     // columns from m2
+                for (int k = 0; k < m1ColLength; k++) { // columns from m1
+                    mResult[i][j] += m1[i][k] * m2[k][j];
+                }
+            }
+        }
+        return mResult;
+    }
 
 
     public static double[] multiplyByVector(double[] vector, double[][] matrix) {
@@ -130,11 +156,71 @@ public class Main {
         return mas;
     }
 
+    public static String[][] convertIntMasToStrMasByMap(Integer[][] intMas, HashMap<Integer, String> dictionary) {
+        int rows = intMas.length;
+        int columns = intMas[0].length;
+        String[][] mas = new String[rows][columns];
+
+        for (int i = 0; i < rows; i++) {         // rows from m1
+            for (int j = 0; j < columns; j++) {
+                mas[i][j] = dictionary.get(intMas[i][j]);
+            }
+        }
+
+        return mas;
+    }
+
+
     public static <T> void matrPrint(T[][] matr) {
         for (int i = 0; i < matr.length; i++) {
             System.out.println(Arrays.toString(matr[i]));
         }
 
+    }
+
+    public static Integer[][] addMatrix(Integer[][] m1, Integer[][] m2) throws NullPointerException {
+
+        int rows1 = m1.length;
+        int columns1 = m1[0].length;
+
+        int rows2 = m2.length;
+        int columns2 = m2[0].length;
+
+        if (m1.length != m2.length || m1[0].length != m2[0].length) {
+            throw new NullPointerException("Wrong Matrix to Add");
+        } else {
+            Integer[][] resMatr = new Integer[rows1][columns1];
+
+            for (int i = 0; i < rows1; i++) {         // rows from m1
+                for (int j = 0; j < columns1; j++) {
+                    resMatr[i][j] = 0;
+                }
+            }
+
+
+            for (int i = 0; i < rows1; i++) {
+                for (int j = 0; j < columns1; j++) {
+                    resMatr[i][j] += m1[i][j] + m2[i][j];
+                }
+            }
+            return resMatr;
+        }
+    }
+
+    public static Integer[][] fActiv(Integer[][] m1) {
+
+        int rows1 = m1.length;
+        int columns1 = m1[0].length;
+
+        for (int i = 0; i < rows1; i++) {
+            for (int j = 0; j < columns1; j++) {
+                if (m1[i][j] >= 0) {
+                    m1[i][j] = 1;
+                } else m1[i][j] = -1;
+            }
+        }
+
+        return m1;
     }
 
     public static void main(String[] args) {
@@ -146,6 +232,10 @@ public class Main {
         HashMap<String, Integer> convertDict = new HashMap<String, Integer>();
         convertDict.put("-", -1);
         convertDict.put("#", 1);
+
+        HashMap<Integer, String> convertDict2 = new HashMap<Integer, String>();
+        convertDict2.put(-1, "-");
+        convertDict2.put(1, "#");
 
         /*String[] m = readToStrMas("1.txt");
         String[][] example = convertStrMasToMatrix(m);
@@ -175,15 +265,17 @@ public class Main {
                                     readToStrMas(curName + ".txt"))
                             , convertDict);
 
-                    if (W == null){
+                    if (W == null) {
                         int rows = image.length;
                         int columns = image[0].length;
                         W = new Integer[rows][columns];
 
-                        W = multiplyByMatrix(image, transpose(image).);
+                        W = multiplyByMatrix(image, transpose(image));
+                    } else {
+                        W = addMatrix(W, multiplyByMatrix(image, transpose(image)));
                     }
 
-                        matrPrint(image);
+                    //matrPrint(image);
                     break;
                 case "2":
                     System.out.println("Введи имя образа для работы");
@@ -194,7 +286,24 @@ public class Main {
                                     readToStrMas(curName + ".txt"))
                             , convertDict);
 
-                    matrPrint(image);
+                    int rows = W.length;
+                    int columns = W[0].length;
+
+                    for (int i = 0; i < rows; i++) {
+                        for (int j = 0; j < columns; j++) {
+                            if (i == j) {
+                                W[i][j] = 0;
+                            }
+                        }
+                    }
+
+                    Integer[][] ResImage;
+                    ResImage = multiplyByMatrix(W, image);
+                    ResImage = fActiv(ResImage);
+
+                    String[][] resImageStr = convertIntMasToStrMasByMap(ResImage, convertDict2);
+
+                    matrPrint(resImageStr);
                     break;
                 case "3":
 
