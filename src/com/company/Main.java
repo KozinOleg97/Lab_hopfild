@@ -60,25 +60,6 @@ public class Main {
     }
 
 
-    public static double[] multiplyByVector(double[] vector, double[][] matrix) {
-
-
-        int n = matrix[0].length;//столбцы
-        int m = matrix.length;//строки
-
-        double x = 0;
-        double[] res = new double[vector.length];
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-                x += vector[i] * matrix[j][i];
-            }
-            res[i] = x;
-            x = 0.0;
-        }
-        return res;
-    }
-
-
     public static Integer[][] transpose(Integer[][] matrix) throws IllegalArgumentException {
         if (matrix.length == 0) {
             throw new IllegalArgumentException("Empty array");
@@ -161,9 +142,9 @@ public class Main {
         //int columns = intMas[0].length;
         String[][] strMas = new String[size][size];
 
-        for (int i = 0; i < rows/size; i++) {
-            for (int j=i*size; j<(i+1)*size; j++){
-                strMas[i][j-(size*i)] = dictionary.get(intMas[j][0]);
+        for (int i = 0; i < rows / size; i++) {
+            for (int j = i * size; j < (i + 1) * size; j++) {
+                strMas[i][j - (size * i)] = dictionary.get(intMas[j][0]);
             }
             //str += dictionary.get(intMas[i]);
         }
@@ -238,10 +219,6 @@ public class Main {
         convertDict2.put(-1, "-");
         convertDict2.put(1, "#");
 
-        /*String[] m = readToStrMas("1.txt");
-        String[][] example = convertStrMasToMatrix(m);
-        Integer[][] qq = convertStrMasToIntMasByMap(example, convertDict);*/
-
 
         String endSymb = "1";
         String curName;
@@ -268,25 +245,7 @@ public class Main {
 
                     if (W == null) {
                         int rows = image.length;
-                        //int columns = image[0].length;
-                        //W = new Integer[][];
 
-                       /* Integer[][] a = new Integer[][]{
-                            {1},
-                            {-1},
-                            {1},
-                            {1}
-                        };
-
-                        Integer[][] x = transpose(a);
-
-                        Integer[][] b = new Integer[][]{
-                                {1,-1,1,1}
-                        };
-
-                        Integer [][] c = multiplyByMatrix(a,b);
-
-                        System.out.println();*/
                         W = multiplyByMatrix(transpose(image), image);
                     } else {
                         W = addMatrix(W, multiplyByMatrix(transpose(image), image));
@@ -318,7 +277,7 @@ public class Main {
                     ResImage = multiplyByMatrix(W, transpose(image));
                     ResImage = fActiv(ResImage);
 
-                    String[][] resImageStr = convertIntMasToStrMasByMap(ResImage, convertDict2,(int)Math.sqrt(rows));
+                    String[][] resImageStr = convertIntMasToStrMasByMap(ResImage, convertDict2, (int) Math.sqrt(rows));
 
                     matrPrint(resImageStr);
                     break;
