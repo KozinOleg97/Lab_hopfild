@@ -156,16 +156,19 @@ public class Main {
         return mas;
     }
 
-    public static String convertIntMasToStrMasByMap(Integer[] intMas, HashMap<Integer, String> dictionary) {
+    public static String[][] convertIntMasToStrMasByMap(Integer[][] intMas, HashMap<Integer, String> dictionary, int size) {
         int rows = intMas.length;
         //int columns = intMas[0].length;
-        String str = "";
+        String[][] strMas = new String[size][size];
 
-        for (int i = 0; i < rows; i++) {
-            str += dictionary.get(intMas[i]);
+        for (int i = 0; i < rows/size; i++) {
+            for (int j=i*size; j<(i+1)*size; j++){
+                strMas[i][j-(size*i)] = dictionary.get(intMas[j][0]);
+            }
+            //str += dictionary.get(intMas[i]);
         }
 
-        return str;
+        return strMas;
     }
 
 
@@ -266,7 +269,7 @@ public class Main {
                     if (W == null) {
                         int rows = image.length;
                         //int columns = image[0].length;
-                        W = new Integer[rows][rows];
+                        //W = new Integer[][];
 
                        /* Integer[][] a = new Integer[][]{
                             {1},
@@ -284,9 +287,9 @@ public class Main {
                         Integer [][] c = multiplyByMatrix(a,b);
 
                         System.out.println();*/
-                        W = multiplyByMatrix(image, transpose(image));
+                        W = multiplyByMatrix(transpose(image), image);
                     } else {
-                         W = addMatrix(W, multiplyByMatrix(image, transpose(image)));
+                        W = addMatrix(W, multiplyByMatrix(transpose(image), image));
                     }
 
                     //matrPrint(image);
@@ -295,10 +298,10 @@ public class Main {
                     System.out.println("Введи имя образа для работы");
                     curName = in.nextLine();
 
-                   /* image = convertStrMasToIntMasByMap(
+                    image = convertStrMasToIntMasByMap(
                             convertStrToMas(
-                                    readToStrMas(curName + ".txt"))
-                            , convertDict);*/
+                                    readToStr(curName + ".txt"))
+                            , convertDict);
 
                     int rows = W.length;
                     int columns = W[0].length;
@@ -312,12 +315,12 @@ public class Main {
                     }
 
                     Integer[][] ResImage;
-                    //  ResImage = multiplyByMatrix(W, image);
-                    //  ResImage = fActiv(ResImage);
+                    ResImage = multiplyByMatrix(W, transpose(image));
+                    ResImage = fActiv(ResImage);
 
-                    //  String[][] resImageStr = convertIntMasToStrMasByMap(ResImage, convertDict2);
+                    String[][] resImageStr = convertIntMasToStrMasByMap(ResImage, convertDict2,(int)Math.sqrt(rows));
 
-                    //    matrPrint(resImageStr);
+                    matrPrint(resImageStr);
                     break;
                 case "3":
 
